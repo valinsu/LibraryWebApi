@@ -1,7 +1,7 @@
 package com.example.library.controller;
 
+
 import com.example.library.model.Book;
-import com.example.library.model.Library;
 import com.example.library.service.BookService;
 import com.example.library.service.LibraryService;
 import jakarta.validation.Valid;
@@ -9,6 +9,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+
+
 
 @RestController
 @RequestMapping("/api/books")
@@ -18,14 +21,13 @@ public class BookController {
     private final BookService bookService;
     private final LibraryService libraryService;
     @GetMapping
-    public List<Book> finfAllBook() {
+    public List<Book> findAllBook() {
         return bookService.findAllBook();
     }
-
     @PostMapping("save_book")
-    public Book createBook(@Valid @RequestBody Book book){
+    public Book createBook(@RequestBody Book book) {
         bookService.createBook(book);
-        libraryService.createBookByLibrary(book.getId());
+        libraryService.createLibraryEntryAsync(book.getId());
         return book;
     }
 
@@ -34,8 +36,9 @@ public class BookController {
         return bookService.findBookByIsbn(isbn);
     }
 
-    public Book findBookById(Long id){
-        return bookService.findBookById(id);//todo
+    @GetMapping("/{id}")
+    public Book findBookById(@PathVariable Long id){
+        return bookService.findBookById(id);
     }
     @PutMapping("update_book")
     public Book updateBook(@Valid @RequestBody Book book){
@@ -43,7 +46,9 @@ public class BookController {
     }
 
     @DeleteMapping("delete_book/{isbn}")
-    public void deleteStudent(@PathVariable String isbn){
+    public void deleteBook(@PathVariable String isbn){
+        libraryService.deleteLibraryBook(bookService.findBookByIsbn(isbn).getId());
         bookService.deleteBook(isbn);
+
     }
 }
